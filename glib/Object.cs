@@ -390,12 +390,17 @@ namespace GLib {
 		[DllImport("glibsharpglue-2", CallingConvention=CallingConvention.Cdecl)]
 		static extern IntPtr gtksharp_object_newv (IntPtr gtype, int n_params, IntPtr[] names, GLib.Value[] vals);
 
-		protected virtual void CreateNativeObject (string[] names, GLib.Value[] vals)
+		protected void CreateNativeObject (string[] names, GLib.Value[] vals)
 		{
-			IntPtr[] native_names = new IntPtr [names.Length];
-			for (int i = 0; i < names.Length; i++)
+			CreateNativeObject (names, vals, names.Length);
+		}
+
+		protected void CreateNativeObject (string [] names, GLib.Value [] vals, int count)
+		{
+			IntPtr[] native_names = new IntPtr [count];
+			for (int i = 0; i < count; i++)
 				native_names [i] = GLib.Marshaller.StringToPtrGStrdup (names [i]);
-			Raw = gtksharp_object_newv (LookupGType ().Val, names.Length, native_names, vals);
+			Raw = gtksharp_object_newv (LookupGType ().Val, count, native_names, vals);
 			foreach (IntPtr p in native_names)
 				GLib.Marshaller.Free (p);
 		}
