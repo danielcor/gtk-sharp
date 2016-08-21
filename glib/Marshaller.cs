@@ -23,12 +23,11 @@
 
 namespace GLib {
 	using System;
+	using System.Linq;
 	using System.Runtime.InteropServices;
 	
-	public class Marshaller {
+	public static class Marshaller {
 
-		private Marshaller () {}
-		
 		[DllImport("libglib-2.0-0.dll", CallingConvention=CallingConvention.Cdecl)]
 		static extern void g_free (IntPtr mem);
 
@@ -391,13 +390,28 @@ namespace GLib {
 			return ret;
 		}
 
-		public static Array ListToArray (ListBase list, System.Type type)
+		[Obsolete ("Use the ListToArray<T> overload")]
+		public static Array ListToArray (this ListBase list, System.Type type)
 		{
-			Array result = Array.CreateInstance (type, list.Count);
-			if (list.Count > 0)
-				list.CopyTo (result, 0);
+			int count = list.Count;
+			Array result = Array.CreateInstance (type, count);
+			if (count > 0)
+				list.CopyTo (result, 0, count);
 
 			if (type.IsSubclassOf (typeof (GLib.Opaque)))
+				list.elements_owned = false;
+
+			return result;
+		}
+
+		public static T [] ListToArray<T> (this ListBase list)
+		{
+			int count = list.Count;
+			var result = new T [count];
+			if (count > 0)
+				list.CopyTo (result, 0);
+
+			if (typeof(T).IsSubclassOf (typeof (GLib.Opaque)))
 				list.elements_owned = false;
 
 			return result;
