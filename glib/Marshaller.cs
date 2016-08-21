@@ -381,10 +381,32 @@ namespace GLib {
 				return ListToArray (list, elem_type);
 		}
 
+		public static T [] ListPtrToArray<T> (IntPtr list_ptr, Type list_type, bool owned, bool elements_owned)
+		{
+			ListBase list;
+			if (list_type == typeof (GLib.List))
+				list = new GLib.List (list_ptr, typeof(T), owned, elements_owned);
+			else
+				list = new GLib.SList (list_ptr, typeof (T), owned, elements_owned);
+
+			using (list)
+				return ListToArray<T> (list);
+		}
+
 		public static Array PtrArrayToArray (IntPtr list_ptr, bool owned, bool elements_owned, Type elem_type)
 		{
 			GLib.PtrArray array = new GLib.PtrArray (list_ptr, elem_type, owned, elements_owned);
 			Array ret = Array.CreateInstance (elem_type, array.Count);
+			array.CopyTo (ret, 0);
+			array.Dispose ();
+			return ret;
+		}
+
+		public static T [] PtrArrayToArray<T> (IntPtr list_ptr, bool owned, bool elements_owned)
+		{
+			var elem_type = typeof (T);
+			GLib.PtrArray array = new GLib.PtrArray (list_ptr, elem_type, owned, elements_owned);
+			T [] ret = new T [array.Count];
 			array.CopyTo (ret, 0);
 			array.Dispose ();
 			return ret;
