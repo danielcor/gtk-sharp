@@ -163,7 +163,8 @@ namespace Cairo {
 			// except in the case of Win64 where sizeof(long)
 			// is 32 bits
 			//
-			int ptr_size = Marshal.SizeOf (typeof (IntPtr));
+			int ptr_size;
+			unsafe { ptr_size = sizeof (IntPtr); }
 			
 			PlatformID platform = Environment.OSVersion.Platform;
 			if (platform == PlatformID.Win32NT ||
@@ -172,10 +173,10 @@ namespace Cairo {
 			    platform == PlatformID.WinCE ||
 			    ptr_size == 4){
 				c_compiler_long_size = 4;
-				native_glyph_size = Marshal.SizeOf (typeof (NativeGlyph_4byte_longs));
+				unsafe { native_glyph_size = sizeof (NativeGlyph_4byte_longs); }
 			} else {
 				c_compiler_long_size = 8;
-				native_glyph_size = Marshal.SizeOf (typeof (Glyph));
+				unsafe { native_glyph_size = sizeof (Glyph); }
 			}
 		}
 		

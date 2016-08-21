@@ -473,9 +473,22 @@ namespace GtkSharp.Generation {
 
 		public override string[] Prepare {
 			get {
-				if (PassAs == "out")
-					return new string [] { "IntPtr native_" + CallName + " = Marshal.AllocHGlobal (Marshal.SizeOf (typeof (" + Generatable.QualifiedName + ")));"};
-				else
+				if (PassAs == "out") {
+					bool canUseSizeOf = true;
+					foreach (StructField child in (Generatable as StructBase).fields) {
+						if (!SymbolTable.CanUseSizeOf (child.CType))
+							canUseSizeOf = false;
+					}
+					if (canUseSizeOf) {
+						return new string [] {
+							"int marshalSize_" + CallName + ";",
+							"unsafe { marshalSize_" + CallName + " = sizeof (" + Generatable.QualifiedName + "); }",
+							"IntPtr native_" + CallName + " = Marshal.AllocHGlobal (marshalSize_" + CallName + ");",
+						};
+					} else {
+						return new string [] { "IntPtr native_" + CallName + " = Marshal.AllocHGlobal (Marshal.SizeOf (typeof (" + Generatable.QualifiedName + ")));" };
+					}
+				} else
 					return new string [] { "IntPtr native_" + CallName + " = " + (Generatable as IManualMarshaler).AllocNative (CallName) + ";"};
 			}
 		}

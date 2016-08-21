@@ -33,7 +33,8 @@ public Rectangle[] GetRectangles ()
 	gdk_region_get_rectangles(Handle, out rectangles, out n);
 
 	Rectangle[] ret = new Rectangle[n];
-	int step = Marshal.SizeOf(typeof(Rectangle));
+	int step;
+	unsafe { step = sizeof(Rectangle); }
 	long ptr = (long)rectangles;
 	for (int i = 0; i < n; i++) {
 		ret[i] = (Rectangle)Marshal.PtrToStructure((IntPtr)ptr, typeof(Rectangle));

@@ -40,6 +40,16 @@ namespace GtkSharp.Generation {
 			}
 		}
 
+		public static bool CanUseSizeOf (string ctype)
+		{
+			var gen = Table [ctype];
+
+			return gen is SimpleGen ||
+				gen is StructBase ||
+				gen is ByRefGen ||
+				gen is EnumGen;
+		}
+
 		public SymbolTable ()
 		{
 			// Simple easily mapped types

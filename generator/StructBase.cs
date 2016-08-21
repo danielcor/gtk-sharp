@@ -29,7 +29,7 @@ namespace GtkSharp.Generation {
 
 	public abstract class StructBase : ClassBase, IManualMarshaler {
 	
-		new ArrayList fields = new ArrayList ();
+		internal new ArrayList fields = new ArrayList ();
 		bool need_read_native = false;
 
 		protected StructBase (XmlElement ns, XmlElement elem) : base (ns, elem)
@@ -215,7 +215,18 @@ namespace GtkSharp.Generation {
 
 		public override void Prepare (StreamWriter sw, string indent)
 		{
-			sw.WriteLine (indent + "IntPtr this_as_native = System.Runtime.InteropServices.Marshal.AllocHGlobal (System.Runtime.InteropServices.Marshal.SizeOf (this));");
+			bool canUseSizeOf = true;
+			foreach (StructField child in this.fields) {
+				if (!SymbolTable.CanUseSizeOf (child.CType))
+					canUseSizeOf = false;
+			}
+			if (canUseSizeOf) {
+				sw.WriteLine (indent + "int marshalSize;");
+				sw.WriteLine (indent + "unsafe { marshalSize = sizeof (" + QualifiedName + "); }");
+				sw.WriteLine (indent + "IntPtr this_as_native = System.Runtime.InteropServices.Marshal.AllocHGlobal (marshalSize);");
+			} else {
+				sw.WriteLine (indent + "IntPtr this_as_native = System.Runtime.InteropServices.Marshal.AllocHGlobal (System.Runtime.InteropServices.Marshal.SizeOf (this));");
+			}
 			sw.WriteLine (indent + "System.Runtime.InteropServices.Marshal.StructureToPtr (this, this_as_native, false);");
 		}
 

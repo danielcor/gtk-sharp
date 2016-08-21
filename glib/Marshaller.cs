@@ -234,8 +234,8 @@ namespace GLib {
 		}
 
 		static bool check_sixtyfour () {
-			int szint = Marshal.SizeOf (typeof (int));
-			int szlong = Marshal.SizeOf (typeof (long));
+			int szint = sizeof (int);
+			int szlong = sizeof (long);
 			int szptr = IntPtr.Size;
 
 			if (szptr == szint)
@@ -253,7 +253,7 @@ namespace GLib {
 			for (int i = 0; i < args.Length; i++)
 				ptrs[i] = (int) Marshal.StringToHGlobalAuto (args[i]);
 
-			IntPtr buf = g_malloc (new UIntPtr ((ulong) Marshal.SizeOf(typeof(int)) * 
+			IntPtr buf = g_malloc (new UIntPtr ((ulong) sizeof (int) * 
 					       (ulong) args.Length));
 			Marshal.Copy (ptrs, 0, buf, ptrs.Length);
 			return buf;
@@ -266,7 +266,7 @@ namespace GLib {
 			for (int i = 0; i < args.Length; i++)
 				ptrs[i] = (long) Marshal.StringToHGlobalAuto (args[i]);
 				
-			IntPtr buf = g_malloc (new UIntPtr ((ulong) Marshal.SizeOf(typeof(long)) * 
+			IntPtr buf = g_malloc (new UIntPtr ((ulong) sizeof (long) * 
 					       (ulong) args.Length));
 			Marshal.Copy (ptrs, 0, buf, ptrs.Length);
 			return buf;
